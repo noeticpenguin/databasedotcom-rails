@@ -4,12 +4,16 @@ module Databasedotcom
       module ClassMethods
         def dbdc_client
           unless @dbdc_client
-            config = YAML.load_file(File.join(::Rails.root, 'config', 'databasedotcom.yml'))
-            config = config.has_key?(::Rails.env) ? config[::Rails.env] : config
-            username = config["username"]
-            password = config["password"]
+            # databasedotcom-rails (hereafter dbdc-r) requires the presesence of
+            # rails_root/config/databasedotcom.yml but the actual auth params 
+            # can be pulled from (and in this case are) the omni-auth auth hash
+            # setup as we login. This ensures that if user A logs in to org FOO
+            # he/she can only see records that they have access to.
+            config = {:token => session[:omniauthToken], 
+              :instance_url => session[:omniauthUrl],
+              :refresh_token => session[:omniauthRefresh]}
             @dbdc_client = Databasedotcom::Client.new(config)
-            @dbdc_client.authenticate(:username => username, :password => password)
+            @dbdc_client.authenticate
           end
 
           @dbdc_client
