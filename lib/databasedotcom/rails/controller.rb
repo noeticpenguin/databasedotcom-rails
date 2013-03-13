@@ -42,7 +42,7 @@ module Databasedotcom
         end
 
         def dbdc_client=(client)
-          @dbdc_client = client
+          self.class.dbdc_client= client
         end
 
         def sobject_types
